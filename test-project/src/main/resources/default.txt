@@ -1,0 +1,23 @@
+OGNL No such property warnings
+^.+] warn\W+ognl.+$\n.+nosuchproperty.+\n(^\t.+\n)+
+
+OGNL No such method warnings and encapsulated exceptions
+^.+] warn\W+ognl.+$\n.*nosuchmethod.+\n(^\t.+\n)+caused.+\n(^\t.+\n)+/--.+\n.+nosuchmethod.+\n(^\t.+\n)+\\--.+\n
+
+OGNL Target or Source is null
+^.+] warn\W+ognl.+$\n.*(source|target) is null.+\n(^\t.+\n)+
+
+No configuration, defaulting
+^.+] warn.+no configuration.+$\n
+
+TextProviderHelper could not locate resource or not match a property
+^.+] warn.+Textproviderhelper.+$\n
+
+IOException connecting to wiki 
+^.+] error.+wiki.+$\n.+validatorexception.+\n((\t.+\n)+caused by.+\n)+(\t.+\n)+
+
+Error looking up ajax-progress.gif or ui-multiselect.js
+^.+] error.+$\n.+(ajax-progress|ui-multiselect).+\n.+associated context.+\n(.+\n)+------.+\n\n
+
+Hibernate that
+^.+] info.+hibernate session.+$\n

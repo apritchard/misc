@@ -77,8 +77,9 @@ public class Regexer {
         + "\n" + sampleJson
         + "\n\nMultiple expressions can be provided for each descriptiveName and"
         + "\nmultiple groups may be named for each expression. Expression name and"
-        + "\ngroupNames are optional. See default.json within this project for a "
-        + "\nmore complete example.");
+        + "\ngroupNames are optional. Delete flag indicates whether detected matches"
+        + "\nshould be removed from the file. See default.json within this project for"
+        + "\na more complete example.");
   }
 
   private static void printInvalidFile(String path) {

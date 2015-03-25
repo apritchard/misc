@@ -9,13 +9,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,31 +33,25 @@ public class Regexer {
     String log = args[0];
     String newLog = args[1];
     String statements = args[2];
-    execute(log, statements, newLog);
+    regexFile(log, statements, newLog);
 
   }
 
-  private static void test() {
-    String logPath = "C:/temp/qa-automated-tests/example-log.txt";
-    String newLogPath = "C:/temp/qa-automated-tests/example-log-trimmed.txt";
-    String statementsPath = "C:/temp/qa-automated-tests/default.txt";
-    execute(logPath, statementsPath, newLogPath);
-  }
-
-  private static void execute(String log, String statements, String newLog) {
+  public static void regexFile(String log, String definitions, String newLog) {
     Path logPath = Paths.get(log);
-    Path statementsPath = Paths.get(statements);
+    Path statementsPath = Paths.get(definitions);
     Path newLogPath = Paths.get(newLog);
     if (!Files.exists(logPath)) {
       printInvalidFile(log);
       return;
     }
     if (!Files.exists(statementsPath)) {
-      printInvalidFile(statements);
+      printInvalidFile(definitions);
       return;
     }
 
-    List<RegexResult> results = regexFile(logPath, statementsPath, newLogPath);
+    List<RegexStatement> statements = parseJsonStatements(statementsPath);
+    List<RegexResult> results = trimLog(logPath, newLogPath, statements);
     StringBuilder sb = new StringBuilder();
     for (RegexResult result : results) {
       sb.append(result.toString()).append(System.getProperty("line.separator"));
@@ -68,26 +60,28 @@ public class Regexer {
   }
 
   private static void printUsage() {
+    String sampleJson = readResourceText("/sample.json");
+    
     System.out.println("Regexer requires 3 arguments:"
         + "\n1.\tPath to the file you wish to process"
         + "\n2.\tPath and file name where the new trimmed file will be created"
         + "\n3.\tPath to the regex description file"
         + "\n"
-        + "\nThe regex description file should be in the following format:");
+        + "\nThe regex description file should be a json file in the following format:"
+        + "\n" + sampleJson
+        + "\n\nMultiple expressions can be provided for each descriptiveName and"
+        + "\nmultiple groups may be named for each expression. Expression name and"
+        + "\ngroupNames are optional. See default.json within this project for a "
+        + "\nmore complete example.");
   }
 
   private static void printInvalidFile(String path) {
     logger.error("Invalid file specified: " + path);
   }
 
-  public static List<RegexResult> regexFile(Path logPath, Path statementsPath, Path newLogPath) {
-    List<RegexStatement> statements = parseJsonStatements(statementsPath);
-    List<RegexResult> results = trimLog(logPath, newLogPath, statements);
-    return results;
-  }
-
   /**
    * Reads the json file at the specified location and parses it into RegexStatements.
+   * 
    * @param statementsPath
    * @return
    */
@@ -114,8 +108,8 @@ public class Regexer {
     String logText = readFileText(logPath);
     List<RegexResult> results = new ArrayList<>();
     for (RegexStatement statement : statements) {
-      if(statement == null) {
-        break; //this happens when GSON deserializes if there is an extra comma at the end of a list
+      if (statement == null) {
+        break; // this happens when GSON deserializes if there is an extra comma at the end of a list
       }
       RegexResult result = new RegexResult(statement);
 
@@ -127,7 +121,7 @@ public class Regexer {
         while (m.find()) {
           result.increment(expression); // increment our count of this match
           int i = 1;
-          if(expression.getGroupNames() == null){
+          if (expression.getGroupNames() == null) {
             continue;
           }
           // then save all the matched groups (if any)
@@ -146,7 +140,7 @@ public class Regexer {
   private static void writeFile(String logText, Path newLogPath) {
     try {
       Path parent = newLogPath.getParent();
-      if(parent != null){
+      if (parent != null) {
         Files.createDirectories(newLogPath.getParent());
       }
       Files.write(newLogPath, logText.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -155,10 +149,19 @@ public class Regexer {
       logger.error("Unable to write file {}", newLogPath.toString(), e);
     }
   }
+  
+  private static String readResourceText(String resourcePath){
+    try {
+      return IOUtils.toString(Regexer.class.getResourceAsStream(resourcePath));
+    }
+    catch (IOException e) {
+      logger.error("Unable to read resource file {}", resourcePath, e);
+      throw new RuntimeException(e);
+    }
+  }
 
   /**
-   * @param filePath
-   *          Path to the file
+   * @param filePath Path to the file
    * @return String containing entire contents of file
    */
   private static String readFileText(Path filePath) {
@@ -175,8 +178,7 @@ public class Regexer {
   }
 
   /**
-   * @param filePath
-   *          Path to the file
+   * @param filePath Path to the file
    * @return List of Strings, one per line in the file
    */
   private static List<String> readFileLines(Path filePath) {

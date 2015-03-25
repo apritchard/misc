@@ -1,0 +1,12 @@
+[
+{
+  "descriptiveName" : "some name",
+  "expressions" : [
+    {
+      "name" : "some expression label",
+      "regex" : "^example(.+)regex\\r?\\n",
+      "groupNames": ["Name of regex groups, in order"]
+    }
+  ]
+}
+]

@@ -22,6 +22,14 @@ import com.amp.misc.regexer.RegexStatement.RegexExpression;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+/**
+ * Applies a set of regular expressions against a target file. Intended as a way
+ * to remove repeatably recognizable noise from log files while still tracking
+ * some details about the removed information. Also can just count matches as well.
+ * 
+ * @author apritchard
+ *
+ */
 public class Regexer {
   private static final Logger  logger   = LoggerFactory.getLogger(Regexer.class);
   private static final Charset ENCODING = StandardCharsets.UTF_8;                // assume UTF_8 for now
@@ -38,6 +46,17 @@ public class Regexer {
 
   }
 
+  /**
+   * Applies all the regex definitions in the provided definitions file
+   * against the provided log file, saving the results into the specified
+   * newLog location. If file locations cannot be found, nothing will
+   * happen. If Invalid definitions provided, exceptions may cause the
+   * program to terminate.
+   * @param log The source file against which to apply regex
+   * @param definitions The file containing json definitions for the regex
+   * @param newLog The destination file. Will be created or overwritten. Any necessary
+   *               parent directories will be created.
+   */
   public static void regexFile(String log, String definitions, String newLog) {
     Path logPath = Paths.get(log);
     Path statementsPath = Paths.get(definitions);
@@ -83,12 +102,11 @@ public class Regexer {
   }
 
   private static void printInvalidFile(String path) {
-    logger.error("Invalid file specified: " + path);
+    logger.error("Invalid file specified: {}", path);
   }
 
   /**
    * Reads the json file at the specified location and parses it into RegexStatements.
-   * 
    * @param statementsPath
    * @return
    */
@@ -102,13 +120,9 @@ public class Regexer {
 
   /**
    * Creates a new, trimmed log file that has all the regex matches removed
-   * 
-   * @param logPath
-   *          Path to the raw logfile
-   * @param newLogPath
-   *          Path to write the edited log
-   * @param statements
-   *          List of regex statements to process
+   * @param logPath Path to the raw logfile
+   * @param newLogPath Path to write the edited log
+   * @param statements List of regex statements to process
    * @return One RegexResult for each statement
    */
   private static List<RegexResult> trimLog(Path logPath, Path newLogPath, List<RegexStatement> statements) {
@@ -147,6 +161,12 @@ public class Regexer {
     return results;
   }
 
+  /**
+   * Create a file containing the specified text at the Path provided. Creates
+   * all intermediate directories if necessary.
+   * @param logText
+   * @param newLogPath
+   */
   private static void writeFile(String logText, Path newLogPath) {
     try {
       Path parent = newLogPath.getParent();
@@ -160,6 +180,10 @@ public class Regexer {
     }
   }
   
+  /**
+   * @param resourcePath Relative path to resource object
+   * @return String contents of the entire file
+   */
   private static String readResourceText(String resourcePath){
     try {
       return IOUtils.toString(Regexer.class.getResourceAsStream(resourcePath));
@@ -187,6 +211,10 @@ public class Regexer {
     return text;
   }
 
+  /**
+   * @param filePath
+   * @return Number of lines in the file
+   */
   private static int countFileLines(Path filePath){
     LineNumberReader lnr = null;
     int lines = 0;

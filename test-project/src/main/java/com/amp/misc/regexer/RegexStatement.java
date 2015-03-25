@@ -2,6 +2,12 @@ package com.amp.misc.regexer;
 
 import java.util.List;
 
+/**
+ * RegexStatement maps directly to input json file and includes
+ * information about what regex should be evaluated.
+ * @author apritchard
+ *
+ */
 public class RegexStatement {
   private String                descriptiveName;
   private List<RegexExpression> expressions;

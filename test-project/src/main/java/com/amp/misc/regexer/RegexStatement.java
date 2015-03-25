@@ -5,6 +5,7 @@ import java.util.List;
 public class RegexStatement {
   private String                descriptiveName;
   private List<RegexExpression> expressions;
+  private boolean delete;
 
   public String getDescriptiveName() {
     return descriptiveName;
@@ -20,6 +21,14 @@ public class RegexStatement {
 
   public void setExpressions(List<RegexExpression> expressions) {
     this.expressions = expressions;
+  }
+
+  public boolean isDelete() {
+    return delete;
+  }
+
+  public void setDelete(boolean delete) {
+    this.delete = delete;
   }
 
   class RegexExpression {

@@ -1,6 +1,7 @@
 package com.amp.misc.regexer;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -49,13 +50,18 @@ public class Regexer {
       printInvalidFile(definitions);
       return;
     }
-
+    
     List<RegexStatement> statements = parseJsonStatements(statementsPath);
     List<RegexResult> results = trimLog(logPath, newLogPath, statements);
+
+    int startLines = countFileLines(logPath);
+    int endLines = countFileLines(newLogPath);
+    
     StringBuilder sb = new StringBuilder();
     for (RegexResult result : results) {
       sb.append(result.toString()).append(System.getProperty("line.separator"));
     }
+    sb.append(startLines - endLines).append(" lines removed. ").append(endLines).append(" lines remaining.");
     logger.info("\n" + sb.toString());
   }
 
@@ -106,6 +112,7 @@ public class Regexer {
    */
   private static List<RegexResult> trimLog(Path logPath, Path newLogPath, List<RegexStatement> statements) {
     String logText = readFileText(logPath);
+    
     List<RegexResult> results = new ArrayList<>();
     for (RegexStatement statement : statements) {
       if (statement == null) {
@@ -129,7 +136,9 @@ public class Regexer {
             result.addRef(expression, refName, m.group(i++));
           }
         }
-        logText = m.replaceAll(""); // then replace all matches with empty string
+        if(statement.isDelete()){
+          logText = m.replaceAll(""); // then replace all matches with empty string
+        }
       }
       results.add(result);
     }
@@ -177,18 +186,20 @@ public class Regexer {
     return text;
   }
 
-  /**
-   * @param filePath Path to the file
-   * @return List of Strings, one per line in the file
-   */
-  private static List<String> readFileLines(Path filePath) {
+  private static int countFileLines(Path filePath){
+    LineNumberReader lnr = null;
+    int lines = 0;
     try {
-      return Files.readAllLines(filePath, ENCODING);
+      lnr = new LineNumberReader(Files.newBufferedReader(filePath, ENCODING));
+      while((lnr.readLine()) != null);
+      lines = lnr.getLineNumber();
+      lnr.close();
     }
     catch (IOException e) {
       logger.error("Unable to read file {}", filePath.toString(), e);
       throw new RuntimeException(e);
-    }
+    } 
+    return lines;
   }
 
 }

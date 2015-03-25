@@ -145,7 +145,10 @@ public class Regexer {
 
   private static void writeFile(String logText, Path newLogPath) {
     try {
-      Files.createDirectories(newLogPath.getParent());
+      Path parent = newLogPath.getParent();
+      if(parent != null){
+        Files.createDirectories(newLogPath.getParent());
+      }
       Files.write(newLogPath, logText.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
     catch (IOException e) {

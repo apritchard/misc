@@ -1,0 +1,71 @@
+[
+{
+  "descriptiveName" : "OGNL Exceptions",
+  "expressions" : [
+    {
+      "name" : "No such property warnings",
+      "regex" : "^.+] warn\\W+ognl.+$\\r?\\n.+nosuchproperty.+\\.(\\w+\\.\\w+)\\r?\\n(^\\t.+\\r?\\n)+",
+      "groupNames": ["Property"]
+    },
+    {
+      "name" : "No such method warnings",
+      "regex" : "^.+] warn\\W+ognl.+$\\r?\\n.*nosuchmethod.+\\.(\\w+\\.\\w+)\\(.+\\r?\\n(^\\t.+\\r?\\n)+caused.+\\r?\\n(^\\t.+\\r?\\n)+/--.+\\r?\\n.+nosuchmethod.+\\r?\\n(^\\t.+\\r?\\n)+\\\\--.+\\r?\\n",
+      "groupNames": ["Method"]
+    },
+    {
+      "name" : "Target or Source is null",
+      "regex" : "^.+] warn\\W+ognl.+$\\r?\\n.*(source|target) is null.+\\r?\\n(^\\t.+\\r?\\n)+",
+      "groupNames": ["Source/Target"]
+    }    
+  ]
+},
+{
+  "descriptiveName" : "No configuration, defaulting",
+  "expressions" : [
+    {
+      "regex" : "^.+] warn.+no configuration.+action: '(.*)' in namespace.+$\\r?\\n",
+      "groupNames": ["Action"]
+    }
+  ]
+},
+{
+  "descriptiveName" : "TextProviderHelper",
+  "expressions" : [
+    {
+      "name" : "Missing Property",
+      "regex" : "^.+] warn.+Textproviderhelper.+default value expression '(.*)' was.+$\\r?\\n",
+      "groupNames": ["Property"]
+    },
+    {
+      "name" : "Missing Key",
+      "regex" : "^.+] warn.+Textproviderhelper.+with key '(.*)'$\\r?\\n",
+      "groupNames": ["Key"]
+    }    
+  ]
+},
+{
+	"descriptiveName" : "IOException connecting to wiki",
+	"expressions" : [
+	  {
+	  	"regex" : "^.+] error.+wiki.+$\\r?\\n.+validatorexception.+\\r?\\n((\\t.+\\r?\\n)+caused by.+\\r?\\n)+(\\t.+\\r?\\n)+"
+	  }
+	]
+},
+{
+  "descriptiveName" : "Error looking up resource",
+  "expressions" : [
+    {
+      "regex" : "^.+] error.+Error URL: (.+)]$\\r?\\n.+\\r?\\n.+associated context.+\\r?\\n(.+\\r?\\n)+------.+\\r?\\n\\r?\\n",
+      "groupNames": ["Resource"]
+    }
+  ]
+},
+{
+  "descriptiveName" : "Hibernate session spam",
+  "expressions" : [
+    {
+      "regex" : "^.+] info.+hibernate session.+$\\r?\\n"
+    }
+  ]
+}
+]
